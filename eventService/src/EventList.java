@@ -13,6 +13,7 @@ public class EventList {
         lock = new ReentrantReadWriteLock();
     }
 
+    //public void replaceArrList()
     public void addToList(EventData event){
         lock.writeLock().lock();
         eventsList.add(event);
@@ -36,7 +37,7 @@ public class EventList {
 
         lock.readLock().lock();
         for(EventData event: eventsList){
-            if(event.getEventId() == eventId){
+            if(event.getEventId().equals(eventId)){
                 ret = event;
             }
         }
@@ -50,9 +51,21 @@ public class EventList {
 
         lock.readLock().lock();
         for(EventData event: eventsList){
-            if(event.getEventId() == eventId){
+            if(eventId.equals(event.getEventId())){
                 ret = true;
             }
+        }
+        lock.readLock().unlock();
+
+        return ret;
+    }
+
+    public boolean isEmpty(){
+        boolean ret = false;
+
+        lock.readLock().lock();
+        if(eventsList.isEmpty()) {
+            ret = true;
         }
         lock.readLock().unlock();
 

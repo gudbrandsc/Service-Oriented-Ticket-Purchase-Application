@@ -7,12 +7,13 @@ public class EventData {
     private int ticketsPurchased;
     private String eventId;
 
-    public EventData(String userId, String eventName, int ticketsAvail){
-        this.userId = userId;
+    public EventData(String user, String eventName1, int ticketsAvail){
+        userId = user;
         ticketsAvailable = ticketsAvail;
-        this.eventName = eventName;
-        eventId = generateEventId();
-        ticketsPurchased = 450;
+        eventName = eventName1;
+        //eventId = generateEventId();
+        eventId = "9999";
+        ticketsPurchased = 0;
     }
 
     public String getUserId(){
@@ -35,13 +36,24 @@ public class EventData {
         return eventId;
     }
 
-    // user random number generator for this
+    // use random number generator for this
     public String generateEventId(){
-        return "46219";
+        Random rand = new Random();
+        int ret = rand.nextInt(1000) + 1;
+
+        return String.valueOf(ret);
     }
 
     // determine if purchase can be made, increment purchase, decrement available
     public boolean purchaseTicket(int num){
-        return true;
+        boolean ret = false;
+
+        if(ticketsAvailable >= num){
+            ticketsAvailable -= num;
+            ticketsPurchased += num;
+            ret = true;
+        }
+
+        return ret;
     }
 }

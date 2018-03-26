@@ -15,14 +15,14 @@ public class EventMain {
         ServletHandler handler = new ServletHandler();
 
         EventList events = new EventList();
+
         EventData event = new EventData("9542", "Rock Concert", 4);
         events.addToList(event);
 
-        //handler.addServletWithMapping(new ServletHolder(new ListServlet()), "/list");
-        handler.addServletWithMapping(new ServletHolder(new EventServlet(events)), "/getevent");
+        handler.addServletWithMapping(new ServletHolder(new EventServlet(events)), "/*");
+        handler.addServletWithMapping(new ServletHolder(new ListServlet(events)), "/list");
 
         server.setHandler(handler);
-
         server.start();
         server.join();
     }
