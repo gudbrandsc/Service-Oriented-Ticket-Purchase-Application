@@ -23,7 +23,6 @@ public class RedirectServlet extends HttpServlet{
         this.userid = userid;
     }
 
-
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
@@ -52,14 +51,13 @@ public class RedirectServlet extends HttpServlet{
                 json.put("tickets", eventarray);
                 out.println("User details");
                 out.println(json);
-                response.setContentType("Application/json");
                 response.setStatus(HttpStatus.OK_200);
             } else {
                 out.println("User not found");
                 response.setStatus(HttpStatus.BAD_REQUEST_400);
             }
         }else{
-            out.println("Invalid user id");
+            out.println("User not found");
             response.setStatus(HttpStatus.BAD_REQUEST_400);
         }
     }
@@ -77,7 +75,7 @@ public class RedirectServlet extends HttpServlet{
         Matcher matchAdd = add.matcher(uri);
         Matcher matchTransfer = transfer.matcher(uri);
 
-        if (matchAdd.find( )) {
+        if (matchAdd.matches()) {
             JSONObject requestBody = getJsonObject(request);
             if(requestBody.containsKey("eventid") && requestBody.containsKey("tickets")){
                 int userId = Integer.parseInt(matchAdd.group(1));
@@ -90,7 +88,7 @@ public class RedirectServlet extends HttpServlet{
                 response.setStatus(HttpStatus.BAD_REQUEST_400);
                 printWriter.println("Tickets could not be added");
             }
-        }else if(matchTransfer.find()){
+        }else if(matchTransfer.matches()){
             JSONObject requestBody = getJsonObject(request);
             if(requestBody.containsKey("eventid") && requestBody.containsKey("tickets") && requestBody.containsKey("targetuser")){
                 int userId = Integer.parseInt(matchTransfer.group(1));
@@ -125,7 +123,7 @@ public class RedirectServlet extends HttpServlet{
                 response.setStatus(HttpStatus.OK_200);
                 JSONObject respJSON = new JSONObject();
                 respJSON.put("userid",userid);
-                printWriter.println("User created");
+                printWriter.println("User created\n");
                 printWriter.println(respJSON.toString());
                 this.userid++;
             } else{
