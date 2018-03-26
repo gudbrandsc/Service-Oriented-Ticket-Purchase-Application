@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="servlets2">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/servlets/javax.servlet-api-4.0.0-b07.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/servlets/jetty-all-9.4.7.v20170914-uber.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/servlets/javax.servlet-api-4.0.0-b07-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/servlets/commons-lang3-3.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

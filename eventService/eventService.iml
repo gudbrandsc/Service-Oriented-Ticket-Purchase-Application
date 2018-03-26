@@ -9,5 +9,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="javax.servlet-api-4.0.0-b07" level="project" />
     <orderEntry type="library" name="jetty-all-9.4.7.v20170914-uber" level="project" />
+    <orderEntry type="library" name="json-simple-1.1.1 (2)" level="project" />
   </component>
 </module>

@@ -8,13 +8,18 @@ import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 public class EventMain {
-    private static int PORT = 7045;
+    private static int PORT = 7050;
 
     public static void main(String[] args) throws Exception{
         Server server = new Server(PORT);
         ServletHandler handler = new ServletHandler();
 
-        handler.addServletWithMapping(new ServletHolder(new ListServlet()), "/list");
+        EventList events = new EventList();
+        EventData event = new EventData("9542", "Rock Concert", 4);
+        events.addToList(event);
+
+        //handler.addServletWithMapping(new ServletHolder(new ListServlet()), "/list");
+        handler.addServletWithMapping(new ServletHolder(new EventServlet(events)), "/getevent");
 
         server.setHandler(handler);
 
