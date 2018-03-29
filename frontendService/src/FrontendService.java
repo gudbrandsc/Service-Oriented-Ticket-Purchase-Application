@@ -13,7 +13,6 @@ public class FrontendService {
         Server server = new Server(PORT);
         ServletHandler handler = new ServletHandler();
         server.setHandler(handler);
-        UserDataMap userDataMap = new UserDataMap();
         handler.addServletWithMapping(EventServlet.class, "/events");
         handler.addServletWithMapping(UserServlet.class, "/users/*");
 
