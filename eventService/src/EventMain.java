@@ -1,7 +1,5 @@
 // Omar Sharif, Event Server
 
-import java.io.File;
-import java.nio.file.Paths;
 import java.util.*;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
@@ -21,6 +19,8 @@ public class EventMain {
 
         handler.addServletWithMapping(new ServletHolder(new EventServlet(events)), "/*");
         handler.addServletWithMapping(new ServletHolder(new ListServlet(events)), "/list");
+        handler.addServletWithMapping(new ServletHolder(new CreateServlet(events)), "/create");
+        //handler.addServletWithMapping(new ServletHolder(new PurchaseServlet(events)), "/purchase")
 
         server.setHandler(handler);
         server.start();
