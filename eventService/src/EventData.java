@@ -1,22 +1,22 @@
 import java.util.*;
 
 public class EventData {
-    private String userId;
+    private int userId;
     private String eventName;
     private int ticketsAvailable;
     private int ticketsPurchased;
-    private String eventId;
+    private int eventId;
 
-    public EventData(String user, String eventName1, int ticketsAvail){
-        userId = user;
-        ticketsAvailable = ticketsAvail;
+    public EventData(int userid, String eventName1, int tickets){
+        userId = userid;
+        ticketsAvailable = tickets;
         eventName = eventName1;
         //eventId = generateEventId();
-        eventId = "9999";
+        eventId = 9999;
         ticketsPurchased = 0;
     }
 
-    public String getUserId(){
+    public int getUserId(){
         return userId;
     }
 
@@ -32,16 +32,16 @@ public class EventData {
         return ticketsPurchased;
     }
 
-    public String getEventId(){
+    public int getEventId(){
         return eventId;
     }
 
     // use random number generator for this
-    public String generateEventId(){
+    public int generateEventId(){
         Random rand = new Random();
         int ret = rand.nextInt(1000) + 1;
 
-        return String.valueOf(ret);
+        return ret;
     }
 
     // determine if purchase can be made, increment purchase, decrement available

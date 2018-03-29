@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+/**
+ * This class returns a list of events in Json format
+ */
 public class ListServlet extends HttpServlet{
     private EventList eventList;
 
@@ -19,7 +22,7 @@ public class ListServlet extends HttpServlet{
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("application/json");
+        //response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_OK);
         PrintWriter out = response.getWriter();
 

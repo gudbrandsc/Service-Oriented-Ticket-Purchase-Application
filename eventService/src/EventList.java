@@ -32,12 +32,12 @@ public class EventList {
         return ret;
     }
 
-    public EventData getEvent(String eventId){
+    public EventData getEvent(int eventId){
         EventData ret = null;
 
         lock.readLock().lock();
         for(EventData event: eventsList){
-            if(event.getEventId().equals(eventId)){
+            if(event.getEventId() == eventId){
                 ret = event;
             }
         }
@@ -46,12 +46,12 @@ public class EventList {
         return ret;
     }
 
-    public boolean eventExists(String eventId){
+    public boolean eventExists(int eventId){
         boolean ret = false;
 
         lock.readLock().lock();
         for(EventData event: eventsList){
-            if(eventId.equals(event.getEventId())){
+            if(eventId == event.getEventId()){
                 ret = true;
             }
         }

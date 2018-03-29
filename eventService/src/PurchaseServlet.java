@@ -1,3 +1,7 @@
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -8,17 +12,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-/**
- *
- */
-public class CreateServlet extends HttpServlet {
+public class PurchaseServlet extends HttpServlet{
     private EventList eventList;
 
-    public CreateServlet(EventList list) {
+    public PurchaseServlet(EventList list) {
         eventList = list;
     }
 
@@ -26,62 +23,63 @@ public class CreateServlet extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("application/json");
-        //response.setStatus(HttpServletResponse.SC_OK);
+
+        String path = request.getPathInfo();
+        path = path.substring(1);
+        //System.out.println(path);
 
         BufferedReader jsonInput = request.getReader();
         StringBuilder builder = new StringBuilder();
         String line;
 
+        // read one line of the post request message at a time
         while ((line = jsonInput.readLine()) != null) {
             builder.append(line);
         }
 
+        // build string version of json object
         String jsonString = builder.toString();
         System.out.println(jsonString);
 
         JSONParser parser = new JSONParser();
         JSONObject object;
-        //String userid = "", eventname = "", numtickets = "";
-        int userid = 0, numtickets = 0;
-        String eventname = "";
+        int userid = 0, eventid = 0, tickets = 0;
 
         try {
+            //parser.parse(jsonString);
             object = (JSONObject) parser.parse(jsonString);
             userid = (int)object.get("userid");
-            eventname = object.get("eventname").toString();
-            numtickets = (int)object.get("numtickets");
+            eventid = (int)object.get("eventid");
+            tickets = (int)object.get("tickets");
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
-        System.out.println(userid);
-        System.out.println(eventname);
-        System.out.println(numtickets);
+        if(!eventList.eventExists(eventid)){
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // set status to 400
 
-        int statusCode = checkUserId(userid);
-        System.out.println("Status code = " + statusCode);
+            EventData event = eventList.getEvent(eventid);
+            String eventName = event.getEventName();
 
-        if(statusCode == 200){ // set status to 200 and create an new event
+            EventData newEvent = new EventData(userid, eventName, tickets);
+            eventList.addToList(newEvent);
+        }
+        else{ // set status to 200,
             response.setStatus(HttpServletResponse.SC_OK);
 
+
         }
-        else{
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        }
+
+        //System.out.println(userid);
+        //System.out.println(eventid);
+        //System.out.println(tickets);
+
+        int statusCode = checkUserId(userid);
+        //System.out.println("Status code = " + statusCode);
     }
 
-    /**
-     * This class forwards a GET request to the user service to check if userid exists, returns
-     * status code.
-     * @param userId
-     * @return
-     * @throws IOException
-     */
-    public int checkUserId(int userId) throws IOException{
-        //String url = "http://localhost:5050/";
-        String url = "http://localhost:5050/";
-        url.concat(String.valueOf(userId));
-
+    public int checkUserId(long userId) throws IOException{
+        String url = "http://localhost:5050/1";
         URL objUrl = new URL(url);
         HttpURLConnection connection = (HttpURLConnection) objUrl.openConnection();
 
@@ -90,11 +88,10 @@ public class CreateServlet extends HttpServlet {
 
         //add request header
         int responseCode = connection.getResponseCode();
-        System.out.println("Sending 'GET' request to URL : " + url);
+        System.out.println("Sending 'GET' request to URL : "+url);
         System.out.println("Response Code : "+ responseCode);
-        //System.out.println("Response message = " + connection.getResponseMessage());
+        System.out.println("Response message = " + connection.getResponseMessage());
 
-        // reading in json
         BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         String inputLine;
         StringBuffer response = new StringBuffer();
