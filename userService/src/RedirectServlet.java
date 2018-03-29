@@ -49,15 +49,12 @@ public class RedirectServlet extends HttpServlet{
                     }
                 }
                 json.put("tickets", eventarray);
-                out.println("User details");
                 out.println(json);
                 response.setStatus(HttpStatus.OK_200);
             } else {
-                out.println("User not found");
                 response.setStatus(HttpStatus.BAD_REQUEST_400);
             }
         }else{
-            out.println("User not found");
             response.setStatus(HttpStatus.BAD_REQUEST_400);
         }
     }
@@ -86,7 +83,6 @@ public class RedirectServlet extends HttpServlet{
                 printWriter.println("Event tickets added");
             }else{
                 response.setStatus(HttpStatus.BAD_REQUEST_400);
-                printWriter.println("Tickets could not be added");
             }
         }else if(matchTransfer.matches()){
             JSONObject requestBody = getJsonObject(request);
@@ -100,19 +96,14 @@ public class RedirectServlet extends HttpServlet{
                         userDataMap.getUser(userId).removeTickets(eventid, tickets);
                         userDataMap.getUser(targetuser).addTickets(eventid, tickets);
                         response.setStatus(HttpStatus.OK_200);
-                        printWriter.println("Event tickets transfered");
-
                     } else {
                         response.setStatus(HttpStatus.BAD_REQUEST_400);
-                        printWriter.println("Tickets could not be transfered");
                     }
                 }else {
                     response.setStatus(HttpStatus.BAD_REQUEST_400);
-                    printWriter.println("Tickets could not be transfered");
                 }
             }else {
                 response.setStatus(HttpStatus.BAD_REQUEST_400);
-                printWriter.println("Tickets could not be transfered");
             }
         }else if(request.getRequestURI().equals("/create")) {
             JSONObject requestBody = getJsonObject(request);
