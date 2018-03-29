@@ -5,7 +5,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import org.json.simple.JSONObject;
-import org.apache.commons.lang3.StringEscapeUtils;
 
 public class EventServlet extends HttpServlet{
     private EventList eventList;
