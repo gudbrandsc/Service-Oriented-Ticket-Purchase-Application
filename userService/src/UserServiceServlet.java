@@ -2,13 +2,14 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-
 import org.json.simple.parser.ParseException;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,6 +50,7 @@ public class UserServiceServlet extends HttpServlet{
                 }
                 json.put("tickets", eventarray);
                 out.println(json);
+                out.flush();
                 response.setStatus(HttpStatus.OK_200);
             } else {
                 response.setStatus(HttpStatus.BAD_REQUEST_400);
@@ -58,21 +60,22 @@ public class UserServiceServlet extends HttpServlet{
         }
     }
 
+
+    @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         PrintWriter printWriter = response.getWriter();
         String addTicketPattern = "\\/([0-9]*)\\/tickets\\/add";
         String transferTicketPattern = "\\/([0-9]*)\\/tickets\\/transfer";
         String uri = request.getRequestURI();
-
         Pattern add = Pattern.compile(addTicketPattern);
         Pattern transfer = Pattern.compile(transferTicketPattern);
 
         Matcher matchAdd = add.matcher(uri);
         Matcher matchTransfer = transfer.matcher(uri);
+        JSONObject requestBody = stringToJsonObject(requestToString(request));
 
         if (matchAdd.matches()) {
-            JSONObject requestBody = getJsonObject(request);
             if(requestBody.containsKey("eventid") && requestBody.containsKey("tickets")){
                 int userId = Integer.parseInt(matchAdd.group(1));
                 int eventid = Integer.parseInt(requestBody.get("eventid").toString());
@@ -87,7 +90,6 @@ public class UserServiceServlet extends HttpServlet{
                 response.setStatus(HttpStatus.BAD_REQUEST_400);
             }
         }else if(matchTransfer.matches()){
-            JSONObject requestBody = getJsonObject(request);
             if(requestBody.containsKey("eventid") && requestBody.containsKey("tickets") && requestBody.containsKey("targetuser")){
                 int userId = Integer.parseInt(matchTransfer.group(1));
                 int eventid = Integer.parseInt(requestBody.get("eventid").toString());
@@ -106,7 +108,6 @@ public class UserServiceServlet extends HttpServlet{
                 response.setStatus(HttpStatus.BAD_REQUEST_400);
             }
         }else if(request.getRequestURI().equals("/create")) {
-            JSONObject requestBody = getJsonObject(request);
             if(requestBody.containsKey("username")){
                 String username = requestBody.get("username").toString();
                 User user = new User(userid, username);
@@ -115,6 +116,7 @@ public class UserServiceServlet extends HttpServlet{
                 JSONObject respJSON = new JSONObject();
                 respJSON.put("userid", userid);
                 printWriter.println(respJSON.toString());
+                printWriter.flush();
                 this.userid++;
             } else{
                 response.setStatus(HttpStatus.BAD_REQUEST_400);
@@ -124,23 +126,26 @@ public class UserServiceServlet extends HttpServlet{
         }
     }
 
-    private JSONObject getJsonObject(HttpServletRequest request){
+    private String requestToString(HttpServletRequest request) throws IOException {
+        StringBuffer sb = new StringBuffer();
+        String line;
+
+        BufferedReader in = request.getReader();
+
+        while ((line = in.readLine()) != null) {
+            sb.append(line);
+        }
+        String res = sb.toString();
+        in.close();
+        return res;
+    }
+
+    private JSONObject stringToJsonObject(String json){
         JSONObject obj = null;
+        JSONParser parser = new JSONParser();
         try {
-            BufferedReader in = request.getReader();
-            String line;
-
-            StringBuffer sb = new StringBuffer();
-            while ((line = in.readLine()) != null) {
-                sb.append(line);
-            }
-            String res = sb.toString();
-            in.close();
-
-            JSONParser parser = new JSONParser();
-            obj = (JSONObject)parser.parse(res);
-
-        } catch (ParseException | IOException e) {
+            obj = (JSONObject)parser.parse(json);
+        } catch (ParseException e) {
             e.printStackTrace();
         }
         return obj;

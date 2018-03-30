@@ -52,6 +52,7 @@ public class UserServlet extends HttpServlet{
             resp.setContentType("application/json; charset=UTF-8");
             resp.setStatus(HttpStatus.OK_200);
             printWriter.println(json.toString());
+            printWriter.flush();
         }
     }
 

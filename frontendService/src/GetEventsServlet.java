@@ -1,5 +1,3 @@
-import org.json.simple.JSONObject;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -11,7 +9,7 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class GetEventsServlet extends HttpServlet {
+public class    GetEventsServlet extends HttpServlet {
     private final String EVENTHOST = "mc09";
     private final String EVENTPORT = "4450";
 
@@ -36,6 +34,7 @@ public class GetEventsServlet extends HttpServlet {
             }
             in.close();
             printWriter.println(response.toString());
+            printWriter.flush();
         }
     }
 }

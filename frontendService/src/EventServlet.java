@@ -32,6 +32,7 @@ public class EventServlet extends HttpServlet{
         if(matchTransfer.matches()){
             event = sendGetRequest(EVENTHOST, EVENTPORT, matchTransfer.group(1), resp);
             printWriter.println(event);
+            printWriter.flush();
         }else {
             resp.setStatus(HttpStatus.BAD_REQUEST_400);
         }
@@ -43,23 +44,21 @@ public class EventServlet extends HttpServlet{
         String regex = "\\/([0-9]*)\\/purchase\\/([0-9]*)";
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(pathInfo);
-        System.out.println("post path: " + pathInfo);
 
         if(pathInfo.equals("/create")){
             // Remove / from path
             String path = pathInfo.substring(1);
             sendPostRequest(EVENTHOST, EVENTPORT, path, resp, req);
         }else if(m.matches()){
-            System.out.println("path match send post");
-           int  eventid = Integer.parseInt(m.group(1));
-           int  userid = Integer.parseInt(m.group(2));
-           String path = "purchase/" + eventid;
-           JSONObject object = new JSONObject();
-           JSONObject reqObj = stringToJsonObject(requestToString(req));
-           object.put("tickets", reqObj.get("tickets"));
-           object.put("userid", userid);
-           object.put("eventid", eventid);
-           sendPostRequest(EVENTHOST, EVENTPORT, path, resp, object.toString());
+            int  eventid = Integer.parseInt(m.group(1));
+            int  userid = Integer.parseInt(m.group(2));
+            String path = "purchase/" + eventid;
+            JSONObject object = new JSONObject();
+            JSONObject reqObj = stringToJsonObject(requestToString(req));
+            object.put("tickets", reqObj.get("tickets"));
+            object.put("userid", userid);
+            object.put("eventid", eventid);
+            sendPostRequest(EVENTHOST, EVENTPORT, path, resp, object.toString());
         }else{
 
             resp.setStatus(HttpStatus.BAD_REQUEST_400);
@@ -112,11 +111,9 @@ public class EventServlet extends HttpServlet{
         con.setRequestMethod("GET");
         int responseCode = con.getResponseCode();
         resp.setStatus(responseCode);
-        System.out.println("got status: " + responseCode );
         //Remove this so you only read input if its status ok. Then move this over to the get --- may return connection
         if (responseCode == 200) {
             String response = readInputStream(con);
-            System.out.println("Return json string: " + response + "\n");
             return stringToJsonObject(response);
         }
         return null;
@@ -125,7 +122,6 @@ public class EventServlet extends HttpServlet{
 
     private void sendPostRequest(String host, String port, String path, HttpServletResponse resp, HttpServletRequest req) throws IOException {
         String url = "http://" + host + ":" + port + "/" + path;
-        System.out.println("Sent get request to: "+ url);
 
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -135,13 +131,13 @@ public class EventServlet extends HttpServlet{
         OutputStreamWriter wr =  new OutputStreamWriter(con.getOutputStream());
         wr.write(requestToString(req));
         wr.flush();
-        System.out.println("resp: " + con.getResponseCode());
 
         resp.setStatus(con.getResponseCode());
     }
+
     private void sendPostRequest(String host, String port, String path, HttpServletResponse resp, String json) throws IOException {
         String url = "http://" + host + ":" + port + "/" + path;
-        System.out.println("Sent post request with string url = "+ url);
+
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setDoOutput(true);
