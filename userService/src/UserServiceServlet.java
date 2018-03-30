@@ -61,8 +61,8 @@ public class UserServiceServlet extends HttpServlet{
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         PrintWriter printWriter = response.getWriter();
-        String addTicketPattern = "\\/([1-9]*)\\/tickets\\/add";
-        String transferTicketPattern = "\\/([1-9]*)\\/tickets\\/transfer";
+        String addTicketPattern = "\\/([0-9]*)\\/tickets\\/add";
+        String transferTicketPattern = "\\/([0-9]*)\\/tickets\\/transfer";
         String uri = request.getRequestURI();
 
         Pattern add = Pattern.compile(addTicketPattern);
@@ -77,8 +77,12 @@ public class UserServiceServlet extends HttpServlet{
                 int userId = Integer.parseInt(matchAdd.group(1));
                 int eventid = Integer.parseInt(requestBody.get("eventid").toString());
                 int tickets = Integer.parseInt(requestBody.get("tickets").toString());
-                userDataMap.getUser(userId).addTickets(eventid, tickets);
-                response.setStatus(HttpStatus.OK_200);
+                if(userDataMap.checkIfUserExist(userId)) {
+                    userDataMap.getUser(userId).addTickets(eventid, tickets);
+                    response.setStatus(HttpStatus.OK_200);
+                }else{
+                    response.setStatus(HttpStatus.BAD_REQUEST_400);
+                }
             }else{
                 response.setStatus(HttpStatus.BAD_REQUEST_400);
             }

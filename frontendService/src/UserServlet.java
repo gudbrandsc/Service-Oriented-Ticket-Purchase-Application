@@ -59,7 +59,7 @@ public class UserServlet extends HttpServlet{
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         String pathInfo = req.getPathInfo();
-        String transferTicketPattern = "\\/([1-9]*)\\/tickets\\/transfer";
+        String transferTicketPattern = "\\/([0-9]*)\\/tickets\\/transfer";
         Pattern transfer = Pattern.compile(transferTicketPattern);
         Matcher matchTransfer = transfer.matcher(pathInfo);
 
