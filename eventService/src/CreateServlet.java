@@ -39,7 +39,7 @@ public class CreateServlet extends HttpServlet {
         }
 
         String jsonString = builder.toString();
-        System.out.println(jsonString);
+        //System.out.println("jsonString = " + jsonString);
 
         JSONParser parser = new JSONParser();
         JSONObject object;
@@ -55,10 +55,13 @@ public class CreateServlet extends HttpServlet {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        //System.out.println(userid);
+        //System.out.println(eventname);
+        //System.out.println(numtickets);
 
         // checks if userid is valid
         int statusCode = checkUserId(userid, hostAndPort);
-        System.out.println("Status code = " + statusCode);
+        //System.out.println("Status code = " + statusCode);
 
         if(statusCode == 200){ // set status to 200, create a new event, and add it to list
             response.setStatus(HttpServletResponse.SC_OK);
@@ -83,27 +86,18 @@ public class CreateServlet extends HttpServlet {
         //String url = "http://localhost:5050/";
         String url = "http://" + hostAndPort + "/";
         url = url.concat(String.valueOf(userId));
-        System.out.println("Url = " + url);
+        //System.out.println("Url = " + url);
 
         URL objUrl = new URL(url);
         HttpURLConnection connection = (HttpURLConnection) objUrl.openConnection();
+        //System.out.println("connection was opened");
 
         // optional default is GET
         connection.setRequestMethod("GET");
 
         //add request header
         int statusCode = connection.getResponseCode();
-
-        // reading in json
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while((inputLine = reader.readLine()) != null){
-            response.append(inputLine);
-        }
-
-        reader.close();
+        //System.out.println("status code received from user was " + statusCode);
 
         return statusCode;
     }

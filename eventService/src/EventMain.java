@@ -14,8 +14,8 @@ public class EventMain {
 
         EventList events = new EventList();
 
-        //EventData event = new EventData(9542, "Rock Concert", 4);
-        //events.addToList(event);
+        EventData event = new EventData(9542, "Rock Concert", 4);
+        events.addToList(event);
 
         handler.addServletWithMapping(new ServletHolder(new EventServlet(events)), "/*");
         handler.addServletWithMapping(new ServletHolder(new ListServlet(events)), "/list");
