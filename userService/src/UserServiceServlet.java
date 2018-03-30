@@ -9,16 +9,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class RedirectServlet extends HttpServlet{
+public class UserServiceServlet extends HttpServlet{
     private UserDataMap userDataMap;
     private static volatile int userid;
 
-    public RedirectServlet(UserDataMap userDataMap, int userid) {
+    public UserServiceServlet(UserDataMap userDataMap, int userid) {
         this.userDataMap = userDataMap;
         this.userid = userid;
     }
@@ -33,6 +31,7 @@ public class RedirectServlet extends HttpServlet{
         Pattern pattern = Pattern.compile(isInt);
         if(pattern.matcher(pathValue).matches()) {
             int userId = Integer.parseInt(pathValue);
+
             if (userDataMap.checkIfUserExist(userId)) {
                 User user = userDataMap.getUser(userId);
                 String username = user.getUsername();
@@ -62,8 +61,8 @@ public class RedirectServlet extends HttpServlet{
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         PrintWriter printWriter = response.getWriter();
-        String addTicketPattern = "\\/([a-zA-Z1-9]*)\\/tickets\\/add";
-        String transferTicketPattern = "\\/([a-zA-Z1-9]*)\\/tickets\\/transfer";
+        String addTicketPattern = "\\/([1-9]*)\\/tickets\\/add";
+        String transferTicketPattern = "\\/([1-9]*)\\/tickets\\/transfer";
         String uri = request.getRequestURI();
 
         Pattern add = Pattern.compile(addTicketPattern);
@@ -91,7 +90,7 @@ public class RedirectServlet extends HttpServlet{
                 int tickets = Integer.parseInt(requestBody.get("tickets").toString());
                 int targetuser = Integer.parseInt(requestBody.get("targetuser").toString());
                 if(userDataMap.checkIfUserExist(targetuser) && userDataMap.checkIfUserExist(userId)) {
-                    if (transfereTickets(eventid,userId,targetuser,tickets)) {
+                    if (transferTickets(eventid, userId, targetuser, tickets)) {
                         response.setStatus(HttpStatus.OK_200);
                     } else {
                         response.setStatus(HttpStatus.BAD_REQUEST_400);
@@ -103,7 +102,6 @@ public class RedirectServlet extends HttpServlet{
                 response.setStatus(HttpStatus.BAD_REQUEST_400);
             }
         }else if(request.getRequestURI().equals("/create")) {
-            System.out.println("Create");
             JSONObject requestBody = getJsonObject(request);
             if(requestBody.containsKey("username")){
                 String username = requestBody.get("username").toString();
@@ -111,7 +109,7 @@ public class RedirectServlet extends HttpServlet{
                 this.userDataMap.addUser(userid, user);
                 response.setStatus(HttpStatus.OK_200);
                 JSONObject respJSON = new JSONObject();
-                respJSON.put("userid",userid);
+                respJSON.put("userid", userid);
                 printWriter.println(respJSON.toString());
                 this.userid++;
             } else{
@@ -123,7 +121,6 @@ public class RedirectServlet extends HttpServlet{
     }
 
     private JSONObject getJsonObject(HttpServletRequest request){
-        Map<String,String> jsonMap = new HashMap<String, String>();
         JSONObject obj = null;
         try {
             BufferedReader in = request.getReader();
@@ -144,10 +141,11 @@ public class RedirectServlet extends HttpServlet{
         }
         return obj;
     }
-    private synchronized boolean transfereTickets(int eventid, int userid, int targetUser, int numTickets){
-        if (userDataMap.getUser(userid).validateNumTickets(eventid, numTickets)) {
-            userDataMap.getUser(userid).removeTickets(eventid, numTickets);
-            userDataMap.getUser(targetUser).addTickets(eventid, numTickets);
+
+    private synchronized boolean transferTickets(int eventId, int userId, int targetUser, int numTickets){
+        if (userDataMap.getUser(userId).validateNumTickets(eventId, numTickets)) {
+            userDataMap.getUser(userId).removeTickets(eventId, numTickets);
+            userDataMap.getUser(targetUser).addTickets(eventId, numTickets);
             return true;
         }
         return false;

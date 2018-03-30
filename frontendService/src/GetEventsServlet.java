@@ -12,14 +12,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class GetEventsServlet extends HttpServlet {
-    private final String HOST = "localhost";
-    private final String EVENTPORT = "7050";
+    private final String EVENTHOST = "mc09";
+    private final String EVENTPORT = "4450";
 
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         PrintWriter printWriter = resp.getWriter();
-        String url = "http://" + HOST + ":" + EVENTPORT + "/list";
+        String url = "http://" + EVENTHOST + ":" + EVENTPORT + "/list";
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod("GET");

@@ -16,16 +16,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class UserServlet extends HttpServlet{
-    private final String HOST = "localhost";
-    private final String USERPORT = "5050";
-    private final String EVENTPORT = "7050";
+    private final String USERHOST = "mc08";
+    private final String EVENTHOST = "mc09";
+    private final String USERPORT = "4444";
+    private final String EVENTPORT = "4450";
 
 
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         PrintWriter printWriter = resp.getWriter();
-        JSONObject userObject = sendGetRequest(HOST, USERPORT, req.getPathInfo().substring(1), resp);
+        JSONObject userObject = sendGetRequest(USERHOST, USERPORT, req.getPathInfo().substring(1), resp);
         if(userObject == null){
             //If user does not exist
             resp.setStatus(HttpStatus.BAD_REQUEST_400);
@@ -42,7 +43,7 @@ public class UserServlet extends HttpServlet{
                 JSONObject res = iterator.next();
                 long eventid = (long) res.get("eventid");
 
-                JSONObject eventObject = sendGetRequest(HOST, EVENTPORT, String.valueOf(eventid), resp);
+                JSONObject eventObject = sendGetRequest(EVENTHOST, EVENTPORT, String.valueOf(eventid), resp);
                 if (eventObject != null) {
                     updatedEventarray.add(eventObject);
                 }
@@ -58,41 +59,33 @@ public class UserServlet extends HttpServlet{
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         String pathInfo = req.getPathInfo();
-        String transferTicketPattern = "\\/([a-zA-Z1-9]*)\\/tickets\\/transfer";
+        String transferTicketPattern = "\\/([1-9]*)\\/tickets\\/transfer";
         Pattern transfer = Pattern.compile(transferTicketPattern);
         Matcher matchTransfer = transfer.matcher(pathInfo);
 
         if(pathInfo.equals("/create")){
             String path =  "create";
-            sendPostRequest(HOST, USERPORT, path, resp, req);
+            sendPostRequest(USERHOST, USERPORT, path, resp, req);
         }else if(matchTransfer.matches()){
             String path =  matchTransfer.group(1) + "/tickets/transfer";
-            sendPostRequest(HOST, USERPORT, path, resp, req);
+            sendPostRequest(USERHOST, USERPORT, path, resp, req);
         }else{
             resp.setStatus(HttpStatus.BAD_REQUEST_400);
         }
     }
 
-    private JSONObject stringToJsonObject(HttpServletRequest request){
-        JSONObject obj = null;
-        try {
-            BufferedReader in = request.getReader();
-            String line;
+    private String requestToString(HttpServletRequest request) throws IOException {
+        StringBuffer sb = new StringBuffer();
+        String line;
 
-            StringBuffer sb = new StringBuffer();
-            while ((line = in.readLine()) != null) {
-                sb.append(line);
-            }
-            String res = sb.toString();
-            in.close();
+        BufferedReader in = request.getReader();
 
-            JSONParser parser = new JSONParser();
-            obj = (JSONObject)parser.parse(res);
-
-        } catch (ParseException | IOException e) {
-            e.printStackTrace();
+        while ((line = in.readLine()) != null) {
+            sb.append(line);
         }
-        return obj;
+        String res = sb.toString();
+        in.close();
+        return res;
     }
 
     private JSONObject stringToJsonObject(String json){
@@ -142,9 +135,8 @@ public class UserServlet extends HttpServlet{
         con.setDoOutput(true);
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-type", "application/json");
-        JSONObject object = stringToJsonObject(req);
         OutputStreamWriter wr =  new OutputStreamWriter(con.getOutputStream());
-        wr.write(object.toString());
+        wr.write(requestToString(req));
         wr.flush();
         resp.setStatus(con.getResponseCode());
     }

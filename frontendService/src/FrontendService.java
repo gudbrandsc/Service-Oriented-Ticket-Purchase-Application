@@ -6,7 +6,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 
 
 public class FrontendService {
-    private static int PORT = 5051;
+    private static int PORT = 4400;
 
     public static void main(String[] args) {
 
