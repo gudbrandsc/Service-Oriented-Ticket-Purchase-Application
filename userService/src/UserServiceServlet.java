@@ -131,14 +131,19 @@ public class UserServiceServlet extends HttpServlet{
         }else if(req.getRequestURI().equals("/create")) {
             if(requestBody.containsKey("username")){
                 String username = requestBody.get("username").toString();
-                User user = new User(userid, username);
-                userDataMap.addUser(userid, user);
-                resp.setStatus(HttpStatus.OK_200);
-                JSONObject respJSON = new JSONObject();
-                respJSON.put("userid", userid);
-                printWriter.println(respJSON.toString());
-                printWriter.flush();
-                userid++;
+                if(!(username.isEmpty())){
+                    User user = new User(userid, username);
+                    userDataMap.addUser(userid, user);
+                    resp.setStatus(HttpStatus.OK_200);
+                    JSONObject respJSON = new JSONObject();
+                    respJSON.put("userid", userid);
+                    printWriter.println(respJSON.toString());
+                    printWriter.flush();
+                    userid++;
+                }else{
+                    resp.setStatus(HttpStatus.BAD_REQUEST_400);
+
+                }
             } else{
                 resp.setStatus(HttpStatus.BAD_REQUEST_400);
             }
