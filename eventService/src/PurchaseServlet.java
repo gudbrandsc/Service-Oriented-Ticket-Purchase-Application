@@ -12,6 +12,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/**
+ * This class handles the purchases of tickets, checks if eventid is valid, userid is valid,
+ * and if tickets are able to be purchased. Either returns status code of 200 or 400.
+ */
 public class PurchaseServlet extends HttpServlet{
     private EventList eventList;
 
@@ -26,7 +30,7 @@ public class PurchaseServlet extends HttpServlet{
 
         String path = request.getPathInfo();
         path = path.substring(1);
-        //System.out.println(path);
+        int urlEventId = Integer.parseInt(path);
 
         BufferedReader jsonInput = request.getReader();
         StringBuilder builder = new StringBuilder();
@@ -39,72 +43,64 @@ public class PurchaseServlet extends HttpServlet{
 
         // build string version of json object
         String jsonString = builder.toString();
-        System.out.println(jsonString);
+        //System.out.println(jsonString);
 
         JSONParser parser = new JSONParser();
         JSONObject object;
         int userid = 0, eventid = 0, tickets = 0;
 
         try {
-            //parser.parse(jsonString);
             object = (JSONObject) parser.parse(jsonString);
-            userid = (int)object.get("userid");
-            eventid = (int)object.get("eventid");
-            tickets = (int)object.get("tickets");
+            userid = (int)Long.parseLong(object.get("userid").toString());
+            eventid = (int) Long.parseLong(object.get("eventid").toString());
+            tickets = (int)Long.parseLong(object.get("tickets").toString());
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
-        if(!eventList.eventExists(eventid)){
+        if(!eventList.eventExists(eventid) || !eventList.eventExists(urlEventId)){
+            // if you try to purchase tickets for an event that doesn't exist
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // set status to 400
-
+        }
+        else{ // subtract tickets, check if user id exists, if you get 200 back keep it, else
+            // change the tickets back
+            //System.out.println("event exists");
             EventData event = eventList.getEvent(eventid);
-            String eventName = event.getEventName();
+            boolean purchased = event.purchaseTicket(tickets);
 
-            EventData newEvent = new EventData(userid, eventName, tickets);
-            eventList.addToList(newEvent);
+            if(purchased){
+                // if you can purchase tickets, subtract, and check if user id exists
+                if(checkUseridExists(userid)){
+                    response.setStatus(HttpServletResponse.SC_OK);
+                }
+                else{
+                    // if user doesn't exist, add tickets back to event
+                    event.addTicketsBack(tickets);
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                }
+            }
+            else{ // if you cannot purchase tickets
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            }
         }
-        else{ // set status to 200,
-            response.setStatus(HttpServletResponse.SC_OK);
 
-
-        }
-
-        //System.out.println(userid);
-        //System.out.println(eventid);
-        //System.out.println(tickets);
-
-        int statusCode = checkUserId(userid);
-        //System.out.println("Status code = " + statusCode);
     }
 
-    public int checkUserId(long userId) throws IOException{
-        String url = "http://localhost:5050/1";
+    public boolean checkUseridExists(int userId) throws IOException{
+        String url = "http://localhost:5050/";
+        url = url.concat(String.valueOf(userId));
+        //url.concat("/" + String.valueOf(userId));
+
         URL objUrl = new URL(url);
         HttpURLConnection connection = (HttpURLConnection) objUrl.openConnection();
 
-        // optional default is GET
         connection.setRequestMethod("GET");
 
-        //add request header
         int responseCode = connection.getResponseCode();
-        System.out.println("Sending 'GET' request to URL : "+url);
-        System.out.println("Response Code : "+ responseCode);
-        System.out.println("Response message = " + connection.getResponseMessage());
+        //System.out.println("Sending 'GET' request to URL : "+url);
+        //System.out.println("Response Code : "+ responseCode);
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while((inputLine = in.readLine()) != null){
-            response.append(inputLine);
-        }
-
-        in.close();
-        //print result
-        System.out.println(response.toString());
-
-        return responseCode;
+        return (responseCode == 200);
     }
 
 }
