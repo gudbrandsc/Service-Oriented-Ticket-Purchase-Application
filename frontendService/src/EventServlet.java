@@ -23,7 +23,7 @@ public class EventServlet extends HttpServlet{
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String pathInfo = req.getPathInfo();
         PrintWriter printWriter = resp.getWriter();
-        String transferTicketPattern = "\\/([1-9]*)";
+        String transferTicketPattern = "\\/([0-9]*)";
         Pattern transfer = Pattern.compile(transferTicketPattern);
         Matcher matchTransfer = transfer.matcher(pathInfo);
         JSONObject event;
@@ -38,7 +38,7 @@ public class EventServlet extends HttpServlet{
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String pathInfo = req.getPathInfo();
-        String regex = "([1-9]*)\\/purchase\\/([1-9]*)";
+        String regex = "([0-9]*)\\/purchase\\/([0-9]*)";
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(pathInfo);
 

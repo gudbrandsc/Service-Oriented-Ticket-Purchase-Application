@@ -11,8 +11,7 @@ public class EventData {
         userId = userid;
         ticketsAvailable = tickets;
         eventName = eventName1;
-        //eventId = generateEventId();
-        eventId = 9999;
+        eventId = generateEventId();
         ticketsPurchased = 0;
     }
 

@@ -22,7 +22,6 @@ public class FrontendService {
         try {
             server.start();
             server.join();
-            System.out.println("Exiting...");
         }
         catch (Exception ex) {
             System.out.println("Interrupted while running server.");

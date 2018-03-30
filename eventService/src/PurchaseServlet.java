@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -18,6 +17,7 @@ import java.net.URL;
  */
 public class PurchaseServlet extends HttpServlet{
     private EventList eventList;
+    private String hostAndPort = "mc08:4444";
 
     public PurchaseServlet(EventList list) {
         eventList = list;
@@ -54,6 +54,9 @@ public class PurchaseServlet extends HttpServlet{
             userid = (int)Long.parseLong(object.get("userid").toString());
             eventid = (int) Long.parseLong(object.get("eventid").toString());
             tickets = (int)Long.parseLong(object.get("tickets").toString());
+            System.out.println(userid);
+            System.out.println(eventid);
+            System.out.println(tickets);
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -61,6 +64,7 @@ public class PurchaseServlet extends HttpServlet{
         if(!eventList.eventExists(eventid) || !eventList.eventExists(urlEventId)){
             // if you try to purchase tickets for an event that doesn't exist
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // set status to 400
+            System.out.println("event id not found");
         }
         else{ // subtract tickets, check if user id exists, if you get 200 back keep it, else
             // change the tickets back
@@ -70,26 +74,27 @@ public class PurchaseServlet extends HttpServlet{
 
             if(purchased){
                 // if you can purchase tickets, subtract, and check if user id exists
-                if(checkUseridExists(userid)){
+                if(checkUseridExists(userid, hostAndPort)){
                     response.setStatus(HttpServletResponse.SC_OK);
                 }
                 else{
                     // if user doesn't exist, add tickets back to event
                     event.addTicketsBack(tickets);
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    System.out.println("user doesnt exist");
                 }
             }
             else{ // if you cannot purchase tickets
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                System.out.println("cant purchase tickets");
             }
         }
 
     }
 
-    public boolean checkUseridExists(int userId) throws IOException{
-        String url = "http://localhost:5050/";
+    public boolean checkUseridExists(int userId, String hostAndPort) throws IOException{
+        String url = "http://" + hostAndPort + "/";
         url = url.concat(String.valueOf(userId));
-        //url.concat("/" + String.valueOf(userId));
 
         URL objUrl = new URL(url);
         HttpURLConnection connection = (HttpURLConnection) objUrl.openConnection();
@@ -97,10 +102,9 @@ public class PurchaseServlet extends HttpServlet{
         connection.setRequestMethod("GET");
 
         int responseCode = connection.getResponseCode();
-        //System.out.println("Sending 'GET' request to URL : "+url);
-        //System.out.println("Response Code : "+ responseCode);
 
         return (responseCode == 200);
     }
+
 
 }
