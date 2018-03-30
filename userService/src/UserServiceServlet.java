@@ -21,12 +21,15 @@ import java.util.regex.Pattern;
 public class UserServiceServlet extends HttpServlet{
     private UserDataMap userDataMap;
     private static volatile int userid;
+    private PropertiesLoader properties;
 
     /** Constructor */
-    public UserServiceServlet(UserDataMap userDataMap, int userid) {
+    public UserServiceServlet(UserDataMap userDataMap, int userid, PropertiesLoader properties) {
         this.userDataMap = userDataMap;
         this.userid = userid;
+        this.properties = properties;
     }
+
     /**
      * Do get method that handles all incoming get requests.
      * @param req incoming request
@@ -179,6 +182,7 @@ public class UserServiceServlet extends HttpServlet{
         }
         return obj;
     }
+
     /** Synchronized method that transfers tickets between to users.
      * @param eventId Id of the events to transfer from
      * @param userId Id of the user to transfer tickets from

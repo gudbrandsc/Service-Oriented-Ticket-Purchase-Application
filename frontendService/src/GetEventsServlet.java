@@ -14,8 +14,12 @@ import java.net.URL;
  * Servlet class that handles all get and post requests.
  */
 public class GetEventsServlet extends HttpServlet {
-    private final String EVENTHOST = "mc09";
-    private final String EVENTPORT = "4450";
+    private PropertiesLoader properties;
+
+    /** Constructor */
+    public GetEventsServlet(PropertiesLoader properties){
+        this.properties = properties;
+    }
 
     /**
      * Method that handles requests to get all events
@@ -28,7 +32,7 @@ public class GetEventsServlet extends HttpServlet {
         int responseCode;
 
         PrintWriter printWriter = resp.getWriter();
-        url = "http://" + EVENTHOST + ":" + EVENTPORT + "/list";
+        url = "http://" + properties.getEventhost() + ":" + properties.getEventport() + "/list";
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod("GET");

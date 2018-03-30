@@ -19,8 +19,12 @@ import java.util.regex.Pattern;
  * Servlet class that handles all get and post requests.
  */
 public class EventServlet extends HttpServlet{
-    private final String EVENTHOST = "mc09";
-    private final String EVENTPORT = "4450";
+    private PropertiesLoader properties;
+
+    /** Constructor*/
+    public EventServlet(PropertiesLoader properties){
+        this.properties = properties;
+    }
 
     /**
      * Do get method that handles all incoming get requests.
@@ -33,14 +37,14 @@ public class EventServlet extends HttpServlet{
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String eventid = req.getPathInfo().substring(1);
-        String transferTicketPattern = "([0-9]*)";
+        String eventidPattern = "([0-9]*)";
 
         PrintWriter printWriter = resp.getWriter();
-        Pattern transfer = Pattern.compile(transferTicketPattern);
+        Pattern transfer = Pattern.compile(eventidPattern);
         Matcher matchTransfer = transfer.matcher(eventid);
 
         if(matchTransfer.matches()){
-            JSONObject event = sendGetRequest(EVENTHOST, EVENTPORT, matchTransfer.group(1), resp);
+            JSONObject event = sendGetRequest(properties.getEventhost(), properties.getEventport(), matchTransfer.group(1), resp);
             printWriter.println(event);
             printWriter.flush();
         }else {
@@ -65,18 +69,17 @@ public class EventServlet extends HttpServlet{
         Matcher m = p.matcher(pathInfo);
 
         if(pathInfo.equals("/create")){
-            // Remove / from path
-            sendPostRequest(EVENTHOST, EVENTPORT, pathInfo, resp, req);
+            sendPostRequest(properties.getEventhost(), properties.getEventport(), pathInfo.substring(1), resp, req);
         }else if(m.matches()){
             int  eventid = Integer.parseInt(m.group(1));
             int  userid = Integer.parseInt(m.group(2));
-            String path = "purchase/" + eventid;
+            String path = "/purchase/" + eventid;
             JSONObject object = new JSONObject();
             JSONObject reqObj = stringToJsonObject(requestToString(req));
             object.put("tickets", reqObj.get("tickets"));
             object.put("userid", userid);
             object.put("eventid", eventid);
-            sendPostRequest(EVENTHOST, EVENTPORT, path, resp, object.toString());
+            sendPostRequest(properties.getEventhost(), properties.getEventport(), path, resp, object.toString());
         }else{
             resp.setStatus(HttpStatus.BAD_REQUEST_400);
         }
@@ -146,7 +149,7 @@ public class EventServlet extends HttpServlet{
      * @throws IOException
      */
     private JSONObject sendGetRequest(String host, String port, String path, HttpServletResponse resp) throws IOException {
-        String url = "http://" + host + ":" + port + path;
+        String url = "http://" + host + ":" + port + "/" + path;
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod("GET");
@@ -172,7 +175,6 @@ public class EventServlet extends HttpServlet{
      */
     private void sendPostRequest(String host, String port, String path, HttpServletResponse resp, HttpServletRequest req) throws IOException {
         String url = "http://" + host + ":" + port + "/" + path;
-
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setDoOutput(true);
@@ -198,7 +200,6 @@ public class EventServlet extends HttpServlet{
      */
     private void sendPostRequest(String host, String port, String path, HttpServletResponse resp, String json) throws IOException {
         String url = "http://" + host + ":" + port + path;
-
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setDoOutput(true);
