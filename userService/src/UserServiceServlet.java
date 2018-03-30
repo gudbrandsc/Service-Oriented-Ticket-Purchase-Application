@@ -201,7 +201,7 @@ public class UserServiceServlet extends HttpServlet{
      * @param targetUser Id of the user to transfer tickets to
      * @param numTickets Number of tickets to transfer
      */
-    private boolean transferTickets(int eventId, int userId, int targetUser, int numTickets){
+    private synchronized boolean transferTickets(int eventId, int userId, int targetUser, int numTickets){
         System.out.println("Transfere method");
         if (userDataMap.getUser(userId).validateNumTickets(eventId, numTickets)) {
             System.out.println("number of tickets OK ");
