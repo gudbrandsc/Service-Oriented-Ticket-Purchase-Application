@@ -48,7 +48,7 @@ public class UserServlet extends HttpServlet{
 
             while (iterator.hasNext()) {
                 JSONObject res = iterator.next();
-                long eventid = (long) res.get("eventid");
+                long eventid = Long.parseLong(res.get("eventid").toString());
 
                 JSONObject eventObject = sendGetRequest(properties.getEventhost(), properties.getEventport(), String.valueOf(eventid), resp);
                 if (eventObject != null) {
@@ -183,6 +183,7 @@ public class UserServlet extends HttpServlet{
      */
     private void sendPostRequest(String host, String port, String path, HttpServletResponse resp, HttpServletRequest req) throws IOException {
         String url = "http://" + host + ":" + port + path;
+        System.out.println(url);
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setDoOutput(true);

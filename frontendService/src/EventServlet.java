@@ -150,6 +150,7 @@ public class EventServlet extends HttpServlet{
      */
     private JSONObject sendGetRequest(String host, String port, String path, HttpServletResponse resp) throws IOException {
         String url = "http://" + host + ":" + port + "/" + path;
+        System.out.println(url);
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod("GET");

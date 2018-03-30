@@ -1,5 +1,9 @@
-import java.util.HashMap;
-import java.util.Map;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @Author Gudbrand Schistad
@@ -8,13 +12,13 @@ import java.util.Map;
 public class User {
     private int userid;
     private String username;
-    private Map<Integer, Integer> events;
+    JSONArray jsonArray = null;
 
     /*** constructor*/
     public User(int userid, String username) {
         this.userid = userid;
         this.username = username;
-        this.events = new HashMap<Integer,Integer>();
+        this.jsonArray = new JSONArray();
     }
 
     /**
@@ -24,7 +28,17 @@ public class User {
      * @param numTickets number of tickets
      */
     public boolean validateNumTickets(int eventid, int numTickets) {
-        return (this.events.containsKey(eventid)) && (this.events.get(eventid) >= numTickets);
+        int count = 0;
+        Iterator<JSONObject> it = jsonArray.iterator();
+
+        while(it.hasNext()){
+            JSONObject obj = it.next();
+            int value = (int) Long.parseLong(obj.get("eventid").toString());
+            if(value == eventid){
+                count++;
+            }
+        }
+        return count >= numTickets;
     }
 
     /** Get method to retrieve the username
@@ -43,11 +57,10 @@ public class User {
      * @param numTickets Number of tickets purchased/transferred
      */
     public void addTickets(int eventid, int numTickets) {
-        if(this.events.containsKey(eventid)){
-            int num = this.events.get(eventid) + numTickets;
-            this.events.put(eventid, num);
-        }else{
-            this.events.put(eventid, numTickets);
+        for(int i = 0; i < numTickets; i++){
+            JSONObject obj = new JSONObject();
+            obj.put("eventid", eventid);
+            jsonArray.add(obj);
         }
     }
 
@@ -60,20 +73,35 @@ public class User {
      * @param numTickets Number of tickets to remove
      */
     public void removeTickets(int eventid, int numTickets) {
-        int num = this.events.get(eventid) - numTickets;
-        if(num == 0){
-            this.events.remove(eventid);
-        }else{
-            this.events.put(eventid, num);
+        int count = 0;
+        boolean removedAll = false;
+        JSONArray newArray = new JSONArray();
+        Iterator<JSONObject> it = jsonArray.iterator();
+
+        while(it.hasNext()){
+            if(count == numTickets){
+                removedAll = true;
+            }
+            JSONObject obj = it.next();
+            int value = (int) Long.parseLong(obj.get("eventid").toString());
+
+            if(value == eventid && !removedAll){
+
+            }else{
+                newArray.add(obj);
+            }
+            count++;
         }
+        jsonArray.clear();
+        jsonArray.addAll(newArray);
     }
 
     /**
      * Get method the get the events map
      * @return User hashmap of all events
      */
-    public Map<Integer,Integer> getEvents() {
-        return this.events;
+    public JSONArray getEvents() {
+        return this.jsonArray;
     }
 
     /**
@@ -81,7 +109,7 @@ public class User {
      * @return The size of events map
      */
     public int getNumEventsSize() {
-        return this.events.size();
+        return this.jsonArray.size();
     }
 
 }

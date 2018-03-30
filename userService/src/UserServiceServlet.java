@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,9 +58,11 @@ public class UserServiceServlet extends HttpServlet{
                 json.put("username", username);
 
                 if (user.getNumEventsSize() > 0) {
-                    for (int i : user.getEvents().keySet()) {
+                    Iterator<JSONObject> it = user.getEvents().iterator();
+                    while(it.hasNext()) {
+                        JSONObject obj = it.next();
                         JSONObject item = new JSONObject();
-                        item.put("eventid", i);
+                        item.put("eventid", obj.get("eventid").toString());
                         eventarray.add(item);
                     }
                 }
@@ -116,10 +119,14 @@ public class UserServiceServlet extends HttpServlet{
                 int eventid = Integer.parseInt(requestBody.get("eventid").toString());
                 int tickets = Integer.parseInt(requestBody.get("tickets").toString());
                 int targetuser = Integer.parseInt(requestBody.get("targetuser").toString());
+                System.out.println("check if user exist");
                 if(userDataMap.checkIfUserExist(targetuser) && userDataMap.checkIfUserExist(userId)) {
+                    System.out.println("User exist");
                     if (transferTickets(eventid, userId, targetuser, tickets)) {
+                        System.out.println("Set status ok");
                         resp.setStatus(HttpStatus.OK_200);
                     } else {
+                        System.out.println("Fail transfere");
                         resp.setStatus(HttpStatus.BAD_REQUEST_400);
                     }
                 }else {
@@ -194,8 +201,10 @@ public class UserServiceServlet extends HttpServlet{
      * @param targetUser Id of the user to transfer tickets to
      * @param numTickets Number of tickets to transfer
      */
-    private synchronized boolean transferTickets(int eventId, int userId, int targetUser, int numTickets){
+    private boolean transferTickets(int eventId, int userId, int targetUser, int numTickets){
+        System.out.println("Transfere method");
         if (userDataMap.getUser(userId).validateNumTickets(eventId, numTickets)) {
+            System.out.println("number of tickets OK ");
             userDataMap.getUser(userId).removeTickets(eventId, numTickets);
             userDataMap.getUser(targetUser).addTickets(eventId, numTickets);
             return true;
