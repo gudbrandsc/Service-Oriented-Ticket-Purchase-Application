@@ -80,7 +80,6 @@ public class RedirectServlet extends HttpServlet{
                 int tickets = Integer.parseInt(requestBody.get("tickets").toString());
                 userDataMap.getUser(userId).addTickets(eventid, tickets);
                 response.setStatus(HttpStatus.OK_200);
-                printWriter.println("Event tickets added");
             }else{
                 response.setStatus(HttpStatus.BAD_REQUEST_400);
             }
@@ -92,9 +91,7 @@ public class RedirectServlet extends HttpServlet{
                 int tickets = Integer.parseInt(requestBody.get("tickets").toString());
                 int targetuser = Integer.parseInt(requestBody.get("targetuser").toString());
                 if(userDataMap.checkIfUserExist(targetuser) && userDataMap.checkIfUserExist(userId)) {
-                    if (userDataMap.getUser(userId).validateNumTickets(eventid, tickets)) {
-                        userDataMap.getUser(userId).removeTickets(eventid, tickets);
-                        userDataMap.getUser(targetuser).addTickets(eventid, tickets);
+                    if (transfereTickets(eventid,userId,targetuser,tickets)) {
                         response.setStatus(HttpStatus.OK_200);
                     } else {
                         response.setStatus(HttpStatus.BAD_REQUEST_400);
@@ -106,6 +103,7 @@ public class RedirectServlet extends HttpServlet{
                 response.setStatus(HttpStatus.BAD_REQUEST_400);
             }
         }else if(request.getRequestURI().equals("/create")) {
+            System.out.println("Create");
             JSONObject requestBody = getJsonObject(request);
             if(requestBody.containsKey("username")){
                 String username = requestBody.get("username").toString();
@@ -114,7 +112,6 @@ public class RedirectServlet extends HttpServlet{
                 response.setStatus(HttpStatus.OK_200);
                 JSONObject respJSON = new JSONObject();
                 respJSON.put("userid",userid);
-                printWriter.println("User created\n");
                 printWriter.println(respJSON.toString());
                 this.userid++;
             } else{
@@ -147,5 +144,12 @@ public class RedirectServlet extends HttpServlet{
         }
         return obj;
     }
-
+    private synchronized boolean transfereTickets(int eventid, int userid, int targetUser, int numTickets){
+        if (userDataMap.getUser(userid).validateNumTickets(eventid, numTickets)) {
+            userDataMap.getUser(userid).removeTickets(eventid, numTickets);
+            userDataMap.getUser(targetUser).addTickets(eventid, numTickets);
+            return true;
+        }
+        return false;
+    }
 }
