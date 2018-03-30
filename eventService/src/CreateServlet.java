@@ -4,6 +4,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -29,6 +31,7 @@ public class CreateServlet extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("application/json");
+        PrintWriter out = response.getWriter();
 
         BufferedReader jsonInput = request.getReader();
         StringBuilder builder = new StringBuilder();
@@ -55,17 +58,28 @@ public class CreateServlet extends HttpServlet {
             e.printStackTrace();
         }
 
-        // checks if userid is valid
-        int statusCode = checkUserId(userid);
-
-        if(statusCode == 200){ // set status to 200, create a new event, and add it to list
-            response.setStatus(HttpServletResponse.SC_OK);
-
-            EventData event = new EventData(userid, eventname, numtickets);
-            eventList.addToList(event);
-        }
-        else{
+        if(numtickets < 0 || eventname.equals("")){ // check if number of tickets is below 0
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        }
+        else {
+            // checks if userid is valid
+            int statusCode = checkUserId(userid);
+
+            if (statusCode == 200) { // set status to 200, create a new event, and add it to list
+                response.setStatus(HttpServletResponse.SC_OK);
+
+                EventData event = new EventData(userid, eventname, numtickets);
+
+                // output the json with eventid
+                int eventId = event.getEventId();
+                JSONObject object1 = new JSONObject();
+                object1.put("eventid", eventId);
+                out.println(object1);
+
+                eventList.addToList(event);
+            } else {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            }
         }
     }
 
@@ -78,7 +92,6 @@ public class CreateServlet extends HttpServlet {
      */
     public int checkUserId(int userId) throws IOException{
         String url = "http://" + USERHOST + ":" + USERPORT + "/";
-        //String url = "http://" + hostAndPort + "/";
         url = url.concat(String.valueOf(userId));
 
         URL objUrl = new URL(url);
