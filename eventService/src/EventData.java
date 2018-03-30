@@ -56,4 +56,10 @@ public class EventData {
 
         return ret;
     }
+
+    public void addTicketsBack(int num){
+        ticketsAvailable += num;
+        ticketsPurchased -= num;
+    }
+
 }

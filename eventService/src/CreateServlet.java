@@ -13,7 +13,9 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 /**
- *
+ * This class processes a POST request to create a new event given a json file with userid, event
+ * name, and tickets. It parses json to get userid, checks if userid is valid, then creates a new
+ * event and adds it to list. Returns status code 200 or 400.
  */
 public class CreateServlet extends HttpServlet {
     private EventList eventList;
@@ -26,7 +28,6 @@ public class CreateServlet extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("application/json");
-        //response.setStatus(HttpServletResponse.SC_OK);
 
         BufferedReader jsonInput = request.getReader();
         StringBuilder builder = new StringBuilder();
@@ -41,28 +42,33 @@ public class CreateServlet extends HttpServlet {
 
         JSONParser parser = new JSONParser();
         JSONObject object;
-        //String userid = "", eventname = "", numtickets = "";
+
         int userid = 0, numtickets = 0;
         String eventname = "";
 
         try {
             object = (JSONObject) parser.parse(jsonString);
-            userid = (int)object.get("userid");
+            userid = (int)Long.parseLong((object.get("userid").toString()));
             eventname = object.get("eventname").toString();
-            numtickets = (int)object.get("numtickets");
+            numtickets = (int)Long.parseLong((object.get("numtickets").toString()));
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
-        System.out.println(userid);
-        System.out.println(eventname);
-        System.out.println(numtickets);
+        //System.out.println("Inside create servlet");
+        //System.out.println("user id = " + userid);
+        //System.out.println("event name = " + eventname);
+        //System.out.println("tickets = " + numtickets);
 
+        // checks if userid is valid
         int statusCode = checkUserId(userid);
         System.out.println("Status code = " + statusCode);
 
-        if(statusCode == 200){ // set status to 200 and create an new event
+        if(statusCode == 200){ // set status to 200, create a new event, and add it to list
             response.setStatus(HttpServletResponse.SC_OK);
+
+            EventData event = new EventData(userid, eventname, numtickets);
+            eventList.addToList(event);
 
         }
         else{
@@ -78,9 +84,9 @@ public class CreateServlet extends HttpServlet {
      * @throws IOException
      */
     public int checkUserId(int userId) throws IOException{
-        //String url = "http://localhost:5050/";
         String url = "http://localhost:5050/";
-        url.concat(String.valueOf(userId));
+        url = url.concat(String.valueOf(userId));
+        System.out.println("Url = " + url);
 
         URL objUrl = new URL(url);
         HttpURLConnection connection = (HttpURLConnection) objUrl.openConnection();
@@ -89,25 +95,20 @@ public class CreateServlet extends HttpServlet {
         connection.setRequestMethod("GET");
 
         //add request header
-        int responseCode = connection.getResponseCode();
-        System.out.println("Sending 'GET' request to URL : " + url);
-        System.out.println("Response Code : "+ responseCode);
-        //System.out.println("Response message = " + connection.getResponseMessage());
+        int statusCode = connection.getResponseCode();
 
         // reading in json
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         String inputLine;
         StringBuffer response = new StringBuffer();
 
-        while((inputLine = in.readLine()) != null){
+        while((inputLine = reader.readLine()) != null){
             response.append(inputLine);
         }
 
-        in.close();
-        //print result
-        System.out.println(response.toString());
+        reader.close();
 
-        return responseCode;
+        return statusCode;
     }
 
 }
