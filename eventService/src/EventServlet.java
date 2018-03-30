@@ -7,8 +7,9 @@ import java.io.PrintWriter;
 import org.json.simple.JSONObject;
 
 /**
- * This class reads in an event id, checks if it is valid, and returns eventid, event name,
- * user id, tickets available, and tickets purchased info in json format with proper status code.
+ * This class is a servlet that processes a GET request. It reads in an event id, checks if it is
+ * valid, and returns an eventid, event name, user id, tickets available, and tickets
+ * purchased info in json format with proper status code.
  */
 public class EventServlet extends HttpServlet{
     private EventList eventList;
@@ -30,7 +31,7 @@ public class EventServlet extends HttpServlet{
         if(eventList.eventExists(eventid)){ // Return 200 with proper message
             response.setStatus(HttpServletResponse.SC_OK);
             EventData event = eventList.getEvent(eventid);
-            JSONObject object = validJSON(event);
+            JSONObject object = createJSON(event);
 
             out.println(object);
         }
@@ -39,7 +40,7 @@ public class EventServlet extends HttpServlet{
         }
     }
 
-    public JSONObject validJSON(EventData event){
+    public JSONObject createJSON(EventData event){
         JSONObject object = new JSONObject();
 
         object.put("eventid", event.getEventId());
