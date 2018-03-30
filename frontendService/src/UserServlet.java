@@ -14,6 +14,10 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * @Author Gudbrand Schistad, Omar Sharif
+ * Servlet class that handles all get and post requests.
+ */
 public class UserServlet extends HttpServlet{
     private final String USERHOST = "mc08";
     private final String EVENTHOST = "mc09";

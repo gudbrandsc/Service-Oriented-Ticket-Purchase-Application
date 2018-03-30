@@ -14,7 +14,10 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
+/**
+ * @Author Gudbrand Schistad, Omar Sharif
+ * Servlet class that handles all get and post requests.
+ */
 public class EventServlet extends HttpServlet{
     private final String EVENTHOST = "mc09";
     private final String EVENTPORT = "4450";

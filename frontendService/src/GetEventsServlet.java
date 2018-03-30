@@ -9,6 +9,10 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/**
+ * @Author Gudbrand Schistad, Omar Sharif
+ * Servlet class that handles all get and post requests.
+ */
 public class GetEventsServlet extends HttpServlet {
     private final String EVENTHOST = "mc09";
     private final String EVENTPORT = "4450";

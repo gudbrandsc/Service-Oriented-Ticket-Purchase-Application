@@ -1,7 +1,10 @@
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
 
-
+/**
+ * @Author Gudbrand Schistad, Omar Sharif
+ * Class that starts the frontend service server, and maps all requests to the correct servlet.
+ */
 public class FrontendService {
     private final static int PORT = 4400;
 

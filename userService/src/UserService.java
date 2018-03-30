@@ -2,7 +2,10 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-
+/**
+ * @Author Gudbrand Schistad
+ * Class that starts the user service server, and maps all requests to the correct servlet.
+ */
 public class UserService {
     private static int PORT = 4444;
     private static volatile int userid = 1;
