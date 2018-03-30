@@ -52,11 +52,13 @@ public class EventData {
 
     /**
      * This class takes as a parameter the number of tickets the user wants to purchase. It will
-     * return true if there are enough tickets available. Else it will return false.
+     * return true if there are enough tickets available. Else it will return false. This method
+     * is synchronized since if multiple threads can access it, they can possibly buy more tickets
+     * than are available.
      * @param num
      * @return
      */
-    public boolean purchaseTicket(int num){
+    public synchronized boolean purchaseTicket(int num){
         boolean ret = false;
 
         if(ticketsAvailable >= num){
@@ -69,10 +71,11 @@ public class EventData {
     }
 
     /**
-     * This adds tickets back to tickets available and deducts from tickets purchased.
+     * This adds tickets back to tickets available and deducts from tickets purchased. This method
+     * is also synchronized.
      * @param num
      */
-    public void addTicketsBack(int num){
+    public synchronized void addTicketsBack(int num){
         ticketsAvailable += num;
         ticketsPurchased -= num;
     }
