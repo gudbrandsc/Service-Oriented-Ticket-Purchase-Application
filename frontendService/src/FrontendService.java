@@ -3,15 +3,15 @@ import org.eclipse.jetty.servlet.ServletHandler;
 
 
 public class FrontendService {
-    private static int PORT = 4400;
+    private final static int PORT = 4400;
 
     public static void main(String[] args) {
 
         Server server = new Server(PORT);
         ServletHandler handler = new ServletHandler();
         server.setHandler(handler);
-        handler.addServletWithMapping(EventServlet.class, "/events/*");
         handler.addServletWithMapping(GetEventsServlet.class, "/events");
+        handler.addServletWithMapping(EventServlet.class, "/events/*");
         handler.addServletWithMapping(UserServlet.class, "/users/*");
 
         System.out.println("Starting server on port " + PORT + "...");

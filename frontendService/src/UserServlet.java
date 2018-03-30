@@ -3,7 +3,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -22,23 +21,26 @@ public class UserServlet extends HttpServlet{
     private final String EVENTPORT = "4450";
 
 
-
+    /**
+     * Do get method that handles all incoming get requests.
+     * @param req incoming request
+     * @param resp servlet Http response object
+     * @throws IOException
+     * @throws ServletException
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         PrintWriter printWriter = resp.getWriter();
         JSONObject userObject = sendGetRequest(USERHOST, USERPORT, req.getPathInfo().substring(1), resp);
-        if(userObject == null){
-            //If user does not exist
-            resp.setStatus(HttpStatus.BAD_REQUEST_400);
-        }else {
+        if(userObject != null){
             JSONObject json = new JSONObject();
+            JSONArray eventarray = (JSONArray) userObject.get("tickets");
+            JSONArray updatedEventarray = new JSONArray();
+            Iterator<JSONObject> iterator = eventarray.iterator();
+
             json.put("userid", userObject.get("userid"));
             json.put("username", userObject.get("username"));
 
-            JSONArray eventarray = (JSONArray) userObject.get("tickets");
-            JSONArray updatedEventarray = new JSONArray();
-
-            Iterator<JSONObject> iterator = eventarray.iterator();
             while (iterator.hasNext()) {
                 JSONObject res = iterator.next();
                 long eventid = (long) res.get("eventid");
@@ -48,14 +50,24 @@ public class UserServlet extends HttpServlet{
                     updatedEventarray.add(eventObject);
                 }
             }
+
             json.put("tickets", updatedEventarray);
             resp.setContentType("application/json; charset=UTF-8");
             resp.setStatus(HttpStatus.OK_200);
             printWriter.println(json.toString());
             printWriter.flush();
+        }else {
+            resp.setStatus(HttpStatus.BAD_REQUEST_400);
         }
     }
-
+    /**
+     * Do post method that handles all incoming post requests.
+     * If request do not match the any pattern set response status  400
+     * @param req incoming request
+     * @param resp servlet Http response object
+     * @throws IOException
+     * @throws ServletException
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
@@ -65,21 +77,26 @@ public class UserServlet extends HttpServlet{
         Matcher matchTransfer = transfer.matcher(pathInfo);
 
         if(pathInfo.equals("/create")){
-            String path =  "create";
-            sendPostRequest(USERHOST, USERPORT, path, resp, req);
+            sendPostRequest(USERHOST, USERPORT, pathInfo, resp, req);
         }else if(matchTransfer.matches()){
-            String path =  matchTransfer.group(1) + "/tickets/transfer";
+            String path =  matchTransfer + "/tickets/transfer";
             sendPostRequest(USERHOST, USERPORT, path, resp, req);
         }else{
             resp.setStatus(HttpStatus.BAD_REQUEST_400);
         }
     }
 
-    private String requestToString(HttpServletRequest request) throws IOException {
+    /**
+     * Method used to read the body of a request
+     * @param req servlet request
+     * @return String of req body
+     * @throws IOException
+     */
+    private String requestToString(HttpServletRequest req) throws IOException {
         StringBuffer sb = new StringBuffer();
         String line;
 
-        BufferedReader in = request.getReader();
+        BufferedReader in = req.getReader();
 
         while ((line = in.readLine()) != null) {
             sb.append(line);
@@ -89,6 +106,11 @@ public class UserServlet extends HttpServlet{
         return res;
     }
 
+    /**
+     * Method that parses a json string and returns a json object
+     * @param json String representation of json
+     * @return JSONObject
+     */
     private JSONObject stringToJsonObject(String json){
         JSONObject obj = null;
         JSONParser parser = new JSONParser();
@@ -100,6 +122,11 @@ public class UserServlet extends HttpServlet{
         return obj;
     }
 
+    /**
+     * Method to read the inputstream and append it to a string
+     * @param con between services
+     * @return response string
+     */
     private String readInputStream(HttpURLConnection con) throws IOException {
         StringBuffer response = new StringBuffer();
 
@@ -113,6 +140,15 @@ public class UserServlet extends HttpServlet{
         return response.toString();
     }
 
+    /**
+     * Method used to send a get request.
+     * Builds a utl pattern, and opens a connection between the host.
+     * @param host address of the receiver
+     * @param port port number for the receiver
+     * @param path path with parameters
+     * @param resp response
+     * @throws IOException
+     */
     private JSONObject sendGetRequest(String host, String port, String path, HttpServletResponse resp) throws IOException {
         String url = "http://" + host + ":" + port + "/" + path;
         URL obj = new URL(url);
@@ -121,7 +157,6 @@ public class UserServlet extends HttpServlet{
         int responseCode = con.getResponseCode();
         resp.setStatus(responseCode);
 
-        //Remove this so you only read input if its status ok. Then move this over to the get --- may return connection
         if (responseCode == 200) {
             String response = readInputStream(con);
             return stringToJsonObject(response.toString());
@@ -129,6 +164,17 @@ public class UserServlet extends HttpServlet{
         return null;
     }
 
+    /**
+     * Method used to send post requests.
+     * Build url for target path
+     * Sets application type, and opens connection.
+     * @param host target host
+     * @param port target port
+     * @param path api path
+     * @param resp Http response
+     * @param req Http request
+     * @throws IOException
+     */
     private void sendPostRequest(String host, String port, String path, HttpServletResponse resp, HttpServletRequest req) throws IOException {
         String url = "http://" + host + ":" + port + "/" + path;
         URL obj = new URL(url);
