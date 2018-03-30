@@ -19,11 +19,12 @@ import java.util.regex.Pattern;
  * Servlet class that handles all get and post requests.
  */
 public class UserServlet extends HttpServlet{
-    private final String USERHOST = "mc08";
-    private final String EVENTHOST = "mc09";
-    private final String USERPORT = "4444";
-    private final String EVENTPORT = "4450";
+    private PropertiesLoader properties;
 
+    /** Constructor */
+    public UserServlet(PropertiesLoader properties){
+        this.properties = properties;
+    }
 
     /**
      * Do get method that handles all incoming get requests.
@@ -35,7 +36,7 @@ public class UserServlet extends HttpServlet{
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         PrintWriter printWriter = resp.getWriter();
-        JSONObject userObject = sendGetRequest(USERHOST, USERPORT, req.getPathInfo().substring(1), resp);
+        JSONObject userObject = sendGetRequest(properties.getUserhost(), properties.getUserport(), req.getPathInfo().substring(1), resp);
         if(userObject != null){
             JSONObject json = new JSONObject();
             JSONArray eventarray = (JSONArray) userObject.get("tickets");
@@ -49,7 +50,7 @@ public class UserServlet extends HttpServlet{
                 JSONObject res = iterator.next();
                 long eventid = (long) res.get("eventid");
 
-                JSONObject eventObject = sendGetRequest(EVENTHOST, EVENTPORT, String.valueOf(eventid), resp);
+                JSONObject eventObject = sendGetRequest(properties.getEventhost(), properties.getEventport(), String.valueOf(eventid), resp);
                 if (eventObject != null) {
                     updatedEventarray.add(eventObject);
                 }
@@ -81,10 +82,11 @@ public class UserServlet extends HttpServlet{
         Matcher matchTransfer = transfer.matcher(pathInfo);
 
         if(pathInfo.equals("/create")){
-            sendPostRequest(USERHOST, USERPORT, pathInfo, resp, req);
+            sendPostRequestAndPrint(properties.getUserhost(), properties.getUserport(), pathInfo, resp, req);
+
         }else if(matchTransfer.matches()){
-            String path =  matchTransfer + "/tickets/transfer";
-            sendPostRequest(USERHOST, USERPORT, path, resp, req);
+            String path =  "/" + matchTransfer.group(1) + "/tickets/transfer";
+            sendPostRequest(properties.getUserhost(), properties.getUserport(), path, resp, req);
         }else{
             resp.setStatus(HttpStatus.BAD_REQUEST_400);
         }
@@ -180,7 +182,7 @@ public class UserServlet extends HttpServlet{
      * @throws IOException
      */
     private void sendPostRequest(String host, String port, String path, HttpServletResponse resp, HttpServletRequest req) throws IOException {
-        String url = "http://" + host + ":" + port + "/" + path;
+        String url = "http://" + host + ":" + port + path;
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setDoOutput(true);
@@ -190,6 +192,35 @@ public class UserServlet extends HttpServlet{
         wr.write(requestToString(req));
         wr.flush();
         resp.setStatus(con.getResponseCode());
+    }
+
+    /**
+     * Method used to send post requests and print response.
+     * Build url for target path
+     * Sets application type, and opens connection.
+     * @param host target host
+     * @param port target port
+     * @param path api path
+     * @param resp Http response
+     * @param req Http request
+     * @throws IOException
+     */
+    private void sendPostRequestAndPrint(String host, String port, String path, HttpServletResponse resp, HttpServletRequest req) throws IOException {
+        String url = "http://" + host + ":" + port + path;
+        URL obj = new URL(url);
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+        con.setDoOutput(true);
+        con.setRequestMethod("POST");
+        con.setRequestProperty("Content-type", "application/json");
+        OutputStreamWriter wr =  new OutputStreamWriter(con.getOutputStream());
+        wr.write(requestToString(req));
+        wr.flush();
+        resp.setStatus(con.getResponseCode());
+        if (con.getResponseCode() == 200){
+            PrintWriter writer = resp.getWriter();
+            writer.println(readInputStream(con));
+            writer.flush();
+        }
     }
 
 }

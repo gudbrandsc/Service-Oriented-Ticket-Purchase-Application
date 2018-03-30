@@ -7,17 +7,19 @@ import org.eclipse.jetty.servlet.ServletHolder;
  * Class that starts the user service server, and maps all requests to the correct servlet.
  */
 public class UserService {
-    private static int PORT = 4444;
     private static volatile int userid = 1;
 
     public static void main(String[] args) {
 
-        Server server = new Server(PORT);
+        PropertiesLoader properties = new PropertiesLoader();
+        int port = Integer.parseInt(properties.getUserport());
+
+        Server server = new Server(port);
         ServletHandler handler = new ServletHandler();
         server.setHandler(handler);
         UserDataMap userDataMap = new UserDataMap();
-        handler.addServletWithMapping(new ServletHolder(new UserServiceServlet(userDataMap, userid)), "/*");
-        System.out.println("Starting server on port " + PORT + "...");
+        handler.addServletWithMapping(new ServletHolder(new UserServiceServlet(userDataMap, userid, properties)), "/*");
+        System.out.println("Starting server on port " + port + "...");
 
         try {
             server.start();
