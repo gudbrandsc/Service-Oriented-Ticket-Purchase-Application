@@ -5,6 +5,12 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
+/**
+ * This class has the main method which uses jetty/servlets to start the server for the Event
+ * Service. The port is 4450 and the node is mc09. When creating this class I referenced my
+ * Project 6 from 601.
+ * @author Omar Sharif
+ */
 public class EventMain {
     private static int PORT = 4450;
 

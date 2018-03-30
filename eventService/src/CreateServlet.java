@@ -4,7 +4,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -19,7 +18,8 @@ import org.json.simple.parser.ParseException;
  */
 public class CreateServlet extends HttpServlet {
     private EventList eventList;
-    private String hostAndPort = "mc08:4444";
+    private String USERHOST = "mc08";
+    private String USERPORT = "4444";
 
     public CreateServlet(EventList list) {
         eventList = list;
@@ -39,7 +39,6 @@ public class CreateServlet extends HttpServlet {
         }
 
         String jsonString = builder.toString();
-        //System.out.println("jsonString = " + jsonString);
 
         JSONParser parser = new JSONParser();
         JSONObject object;
@@ -55,20 +54,15 @@ public class CreateServlet extends HttpServlet {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        //System.out.println(userid);
-        //System.out.println(eventname);
-        //System.out.println(numtickets);
 
         // checks if userid is valid
-        int statusCode = checkUserId(userid, hostAndPort);
-        //System.out.println("Status code = " + statusCode);
+        int statusCode = checkUserId(userid);
 
         if(statusCode == 200){ // set status to 200, create a new event, and add it to list
             response.setStatus(HttpServletResponse.SC_OK);
 
             EventData event = new EventData(userid, eventname, numtickets);
             eventList.addToList(event);
-
         }
         else{
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -82,22 +76,18 @@ public class CreateServlet extends HttpServlet {
      * @return
      * @throws IOException
      */
-    public int checkUserId(int userId, String hostAndPort) throws IOException{
-        //String url = "http://localhost:5050/";
-        String url = "http://" + hostAndPort + "/";
+    public int checkUserId(int userId) throws IOException{
+        String url = "http://" + USERHOST + ":" + USERPORT + "/";
+        //String url = "http://" + hostAndPort + "/";
         url = url.concat(String.valueOf(userId));
-        //System.out.println("Url = " + url);
 
         URL objUrl = new URL(url);
         HttpURLConnection connection = (HttpURLConnection) objUrl.openConnection();
-        //System.out.println("connection was opened");
 
-        // optional default is GET
+        // set request method to GET
         connection.setRequestMethod("GET");
 
-        //add request header
         int statusCode = connection.getResponseCode();
-        //System.out.println("status code received from user was " + statusCode);
 
         return statusCode;
     }

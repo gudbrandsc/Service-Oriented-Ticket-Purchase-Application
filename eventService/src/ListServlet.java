@@ -10,7 +10,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 /**
- * This class returns a list of events in Json format
+ * This class is a servlet that processes a GET request. It returns a list of events in
+ * JSON format. If there are no events then it will return empty JSONArray.
  */
 public class ListServlet extends HttpServlet{
     private EventList eventList;
@@ -48,18 +49,6 @@ public class ListServlet extends HttpServlet{
         }
 
         return array;
-    }
-
-    public JSONObject validJSON(EventData event){
-        JSONObject object = new JSONObject();
-
-        object.put("eventid", event.getEventId());
-        object.put("eventname", event.getEventName());
-        object.put("userid", event.getUserId());
-        object.put("avail", event.getTicketsAvailable());
-        object.put("purchased", event.getTicketsPurchased());
-
-        return object;
     }
 
 }
