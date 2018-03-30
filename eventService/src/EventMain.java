@@ -6,7 +6,7 @@ import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 public class EventMain {
-    private static int PORT = 7050;
+    private static int PORT = 4450;
 
     public static void main(String[] args) throws Exception{
         Server server = new Server(PORT);
@@ -14,8 +14,8 @@ public class EventMain {
 
         EventList events = new EventList();
 
-        EventData event = new EventData(9542, "Rock Concert", 4);
-        events.addToList(event);
+        //EventData event = new EventData(9542, "Rock Concert", 4);
+        //events.addToList(event);
 
         handler.addServletWithMapping(new ServletHolder(new EventServlet(events)), "/*");
         handler.addServletWithMapping(new ServletHolder(new ListServlet(events)), "/list");

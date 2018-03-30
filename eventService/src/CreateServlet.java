@@ -19,6 +19,7 @@ import org.json.simple.parser.ParseException;
  */
 public class CreateServlet extends HttpServlet {
     private EventList eventList;
+    private String hostAndPort = "mc08:4444";
 
     public CreateServlet(EventList list) {
         eventList = list;
@@ -55,13 +56,8 @@ public class CreateServlet extends HttpServlet {
             e.printStackTrace();
         }
 
-        //System.out.println("Inside create servlet");
-        //System.out.println("user id = " + userid);
-        //System.out.println("event name = " + eventname);
-        //System.out.println("tickets = " + numtickets);
-
         // checks if userid is valid
-        int statusCode = checkUserId(userid);
+        int statusCode = checkUserId(userid, hostAndPort);
         System.out.println("Status code = " + statusCode);
 
         if(statusCode == 200){ // set status to 200, create a new event, and add it to list
@@ -83,8 +79,9 @@ public class CreateServlet extends HttpServlet {
      * @return
      * @throws IOException
      */
-    public int checkUserId(int userId) throws IOException{
-        String url = "http://localhost:5050/";
+    public int checkUserId(int userId, String hostAndPort) throws IOException{
+        //String url = "http://localhost:5050/";
+        String url = "http://" + hostAndPort + "/";
         url = url.concat(String.valueOf(userId));
         System.out.println("Url = " + url);
 
