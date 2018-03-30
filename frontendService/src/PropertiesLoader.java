@@ -23,7 +23,7 @@ public class PropertiesLoader {
         InputStream input = null;
         try {
 
-            input = new FileInputStream("./userService/config.properties");
+            input = new FileInputStream("config.properties");
 
             // load a properties file
             prop.load(input);

@@ -16,6 +16,7 @@ public class User {
         this.username = username;
         this.events = new HashMap<Integer,Integer>();
     }
+
     /**
      * Validates that the user has a event with the param eventid,
      * and that the number of tickets param is not greater than the number the user has
@@ -25,8 +26,10 @@ public class User {
     public boolean validateNumTickets(int eventid, int numTickets) {
         return (this.events.containsKey(eventid)) && (this.events.get(eventid) >= numTickets);
     }
-    /**
-     * Get method to retrieve the username */
+
+    /** Get method to retrieve the username
+     * @return username
+     */
     public String getUsername() {
         return this.username;
     }
@@ -64,6 +67,7 @@ public class User {
             this.events.put(eventid, num);
         }
     }
+
     /**
      * Get method the get the events map
      * @return User hashmap of all events

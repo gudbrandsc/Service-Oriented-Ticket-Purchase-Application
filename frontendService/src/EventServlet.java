@@ -69,7 +69,7 @@ public class EventServlet extends HttpServlet{
         Matcher m = p.matcher(pathInfo);
 
         if(pathInfo.equals("/create")){
-            sendPostRequest(properties.getEventhost(), properties.getEventport(), pathInfo.substring(1), resp, req);
+            sendPostRequestAndPrint(properties.getEventhost(), properties.getEventport(), pathInfo, resp, req);
         }else if(m.matches()){
             int  eventid = Integer.parseInt(m.group(1));
             int  userid = Integer.parseInt(m.group(2));
@@ -209,6 +209,35 @@ public class EventServlet extends HttpServlet{
         wr.write(json);
         wr.flush();
         resp.setStatus(con.getResponseCode());
+    }
+
+    /**
+     * Method used to send post requests and print response.
+     * Build url for target path
+     * Sets application type, and opens connection.
+     * @param host target host
+     * @param port target port
+     * @param path api path
+     * @param resp Http response
+     * @param req Http request
+     * @throws IOException
+     */
+    private void sendPostRequestAndPrint(String host, String port, String path, HttpServletResponse resp, HttpServletRequest req) throws IOException {
+        String url = "http://" + host + ":" + port + path;
+        URL obj = new URL(url);
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+        con.setDoOutput(true);
+        con.setRequestMethod("POST");
+        con.setRequestProperty("Content-type", "application/json");
+        OutputStreamWriter wr =  new OutputStreamWriter(con.getOutputStream());
+        wr.write(requestToString(req));
+        wr.flush();
+        resp.setStatus(con.getResponseCode());
+        if (con.getResponseCode() == 200){
+            PrintWriter writer = resp.getWriter();
+            writer.println(readInputStream(con));
+            writer.flush();
+        }
     }
 
 }

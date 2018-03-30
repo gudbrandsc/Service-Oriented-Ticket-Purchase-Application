@@ -65,6 +65,7 @@ public class UserServlet extends HttpServlet{
             resp.setStatus(HttpStatus.BAD_REQUEST_400);
         }
     }
+
     /**
      * Do post method that handles all incoming post requests.
      * If request do not match the any pattern set response status  400
@@ -83,7 +84,6 @@ public class UserServlet extends HttpServlet{
 
         if(pathInfo.equals("/create")){
             sendPostRequestAndPrint(properties.getUserhost(), properties.getUserport(), pathInfo, resp, req);
-
         }else if(matchTransfer.matches()){
             String path =  "/" + matchTransfer.group(1) + "/tickets/transfer";
             sendPostRequest(properties.getUserhost(), properties.getUserport(), path, resp, req);
@@ -222,6 +222,5 @@ public class UserServlet extends HttpServlet{
             writer.flush();
         }
     }
-
 }
 
