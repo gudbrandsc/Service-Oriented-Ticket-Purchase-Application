@@ -47,8 +47,7 @@ public class UserServiceServlet extends HttpServlet{
         String pathValue = req.getPathInfo().substring(1);
         Pattern pattern = Pattern.compile(isInt);
         if(pattern.matcher(pathValue).matches()) {
-            int userId = Integer.parseInt(pathValue);
-
+            int userId = Integer.valueOf(pathValue);
             if (userDataMap.checkIfUserExist(userId)) {
                 User user = userDataMap.getUser(userId);
                 String username = user.getUsername();
@@ -56,7 +55,6 @@ public class UserServiceServlet extends HttpServlet{
                 JSONArray eventarray = new JSONArray();
                 json.put("userid", userId);
                 json.put("username", username);
-
                 if (user.getNumEventsSize() > 0) {
                     Iterator<JSONObject> it = user.getEvents().iterator();
                     while(it.hasNext()) {
@@ -119,14 +117,10 @@ public class UserServiceServlet extends HttpServlet{
                 int eventid = Integer.parseInt(requestBody.get("eventid").toString());
                 int tickets = Integer.parseInt(requestBody.get("tickets").toString());
                 int targetuser = Integer.parseInt(requestBody.get("targetuser").toString());
-                System.out.println("check if user exist");
                 if(userDataMap.checkIfUserExist(targetuser) && userDataMap.checkIfUserExist(userId)) {
-                    System.out.println("User exist");
                     if (transferTickets(eventid, userId, targetuser, tickets)) {
-                        System.out.println("Set status ok");
                         resp.setStatus(HttpStatus.OK_200);
                     } else {
-                        System.out.println("Fail transfere");
                         resp.setStatus(HttpStatus.BAD_REQUEST_400);
                     }
                 }else {
@@ -202,9 +196,7 @@ public class UserServiceServlet extends HttpServlet{
      * @param numTickets Number of tickets to transfer
      */
     private synchronized boolean transferTickets(int eventId, int userId, int targetUser, int numTickets){
-        System.out.println("Transfere method");
         if (userDataMap.getUser(userId).validateNumTickets(eventId, numTickets)) {
-            System.out.println("number of tickets OK ");
             userDataMap.getUser(userId).removeTickets(eventId, numTickets);
             userDataMap.getUser(targetUser).addTickets(eventId, numTickets);
             return true;
