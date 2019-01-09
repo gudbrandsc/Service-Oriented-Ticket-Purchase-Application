@@ -1,4 +1,4 @@
-Project 3 - Service-Oriented Ticket Purchase Application
+Service-Oriented Ticket Purchase Application
 ========================================================
 
 ### Code and Deployment Due - Friday March 30, 5PM
